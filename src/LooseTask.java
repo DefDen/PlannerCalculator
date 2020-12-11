@@ -1,6 +1,7 @@
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
-public class LooseTask {
+public class LooseTask implements Task {
 	private String name;
 	private Calendar deadline;
 	private int durationMinutes;
@@ -33,5 +34,11 @@ public class LooseTask {
 	
 	public int getDurationMinutes() {
 		return durationMinutes;
+	}
+	
+	public StrictTask toStrictTask(Calendar startTime, int duration) {
+		GregorianCalendar endTime = (GregorianCalendar) startTime.clone();
+		endTime.add(Calendar.MINUTE, duration);
+		return new StrictTask(this.name, startTime, endTime);
 	}
 }
