@@ -5,7 +5,7 @@ time. Loose tasks are less intuitive. Loose tasks have a deadline and a number
 of minutes you estimate it will take to complete them. The project distributes 
 those minutes from now until the deadline in a reasonable way. 
 
-To use, in the main method, construct a ScheduleBuilder with a default constructor.
+To use this project, in the main method, construct a ScheduleBuilder with a default constructor.
 Before adding a strict task, you need to create two GregorianCalendar objects to be 
 the task’s start time and end time. Before adding a loose task, you need to create
 one GregorianCalendar object to be the task’s deadline. Construct a GregorianCalendar

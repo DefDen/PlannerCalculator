@@ -146,8 +146,9 @@ public class ScheduleBuilder {
 			for (LooseTask task : looseTasksByName.get(name)) {
 				String key = task.getDeadlineKey();
 				int minutesRemaining = task.getDurationMinutes();
-				int daysBetween = daysBetween(actualDate, task.getDeadline());
-				if (minutesRemaining / 60 < daysBetween(actualDate, task.getDeadline())) {
+				GregorianCalendar actual = new GregorianCalendar();
+				int daysBetween = daysBetween(actual, task.getDeadline());
+				if (minutesRemaining / 60 < daysBetween) {
 					fillDays(key, minutesRemaining, 60, task, r);
 				} else {
 					fillDays(key, minutesRemaining, minutesRemaining / daysBetween, task, r);
@@ -159,37 +160,37 @@ public class ScheduleBuilder {
 
 	private void fillDays(String key, int minutesRemaining, int duration, LooseTask task, HashMap<String, HashMap<LooseTask, Integer>> r) {
 		if (minutesRemaining > 0) {
-			HashMap<LooseTask, Integer> mini = new HashMap<LooseTask, Integer>();
+			if (r.get(key) == null) {
+				HashMap<LooseTask, Integer> mini = new HashMap<LooseTask, Integer>();
+				r.put(key, mini);
+			}
 			if (minutesRemaining < 5 + duration) {
 				duration += 5;
 			}
-			mini.put(task, Integer.min(duration / 5 * 5, minutesRemaining));
-			r.put(key, mini);
+			r.get(key).put(task, Integer.min(duration / 5 * 5, minutesRemaining));
 			fillDays(increment(key), minutesRemaining - duration, duration, task, r); 
 		}
 	}
 
 	private String increment(String currDate) {
 		String[] split = currDate.split(" ");
-		int[] splitInts = new int[split.length];
-		for (int i = 0; i < splitInts.length; i++) {
-			splitInts[i] = Integer.parseInt(split[i]);
-		}
-		splitInts[1]--;
-		if (splitInts[1] < 0) {
-			splitInts[0]--;
-			if (splitInts[0] < 0) {
-				splitInts[0] = 11;
-				splitInts[2]--;
+			int[] splitInts = new int[split.length];
+			for (int i = 0; i < splitInts.length; i++) {
+				splitInts[i] = Integer.parseInt(split[i]);
+			}
+			splitInts[1]--;
+			if (splitInts[1] <= 0) {
+				splitInts[0]--;
+				if (splitInts[0] < 0) {
+					splitInts[0] = 11;
+					splitInts[2]--;
+				}
+				splitInts[1] = numberOfDaysInMonth(splitInts[0], splitInts[2], new GregorianCalendar());
 			}
 			splitInts[1] = numberOfDaysInMonth(splitInts[0], splitInts[2], new GregorianCalendar());
 		}
 		currDate = splitInts[0] + " " + splitInts[1] + " " + splitInts[2];
 		return currDate;
-	}
-
-	public void setActualDate(Calendar actualDate) {
-		this.actualDate = actualDate;
 	}
 
 	public int daysBetween(Calendar first, Calendar second) {
@@ -303,5 +304,19 @@ public class ScheduleBuilder {
 
 	public HashMap<String, StrictTask[]> getStrictSchedule() {
 		return strictSchedule;
+	}
+
+	public void addLooseTaskConsole(String name, int durationMinutes, int deadlineYear, int deadlineMonth, int deadlineDate, int deadlineHour, int deadlineMinute) {
+		GregorianCalendar cal = new GregorianCalendar();
+		cal.set(deadlineYear, deadlineMonth, deadlineDate, deadlineHour, deadlineMinute, 0);
+		addLooseTask(new LooseTask(name, cal, durationMinutes));	
+	}
+
+	public void addStrictTaskConsole(String name, int startYear, int startMonth, int startDate, int startHour, int startMinute, int endYear, int endMonth, int endDate, int endHour, int endMinute) {
+		GregorianCalendar startCal = new GregorianCalendar();
+		startCal.set(startYear, startMonth, startDate, startHour, startMinute, 0);
+		GregorianCalendar endCal = new GregorianCalendar();
+		endCal.set(endYear, endMonth, endDate, endHour, endMinute, 0);
+		addStrictTask(new StrictTask(name, startCal, endCal));
 	}
 }

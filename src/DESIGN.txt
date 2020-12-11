@@ -1,11 +1,18 @@
-Our project is a schedule builder which adapts to the needs of the user.
-We take in tasks which the user must complete as a series of starting and ending times, which are placed onto the schedule as strict, immovable blocks. These are defined in a HashMap where days of the year point to their respective tasks in order to save space on days where no tasks are occurring.
-
-After strict tasks are defined, loose tasks can be added. These type of
-tasks represent ones which need to be done by a certain day, like homework, but don't necesarily need to be done at any given time like going to a class. Both types of tasks are part of a task interface which makes storing them easier. Loose tasks are placed by a recursive algorithm around strict tasks making sure to spread out enough as to not overwhelm users.
-
 To implement the tasks and calender functionality we used the
-java.util.calender library and the java.util.gregoriancalendar library.
-Each task uses a calender instance for us to better determine if there
-were conflicts between tasks, wheather one came before another, and
-where to best place loose tasks.
+java.util.Calendar library and the java.util.GregorianCalendar library.  
+Using these libraries,we link values for year, month, day, hour, and minute
+together in one class. This means in communicating between classes and methods
+we don't have to pass each of those 5 variables individually, instead we pass
+a class which contains them. Each task uses a calender instance for us to better
+determine if there were conflicts between tasks, wheather one came before another,
+and where to best place loose tasks.
+
+The ScheduleBuilder class uses multiple nested collections with outer HashMaps. 
+These HashMaps link a String key signifying a particular day to collections of tasks.
+This structure is useful because it shows what tasks happen on each day.
+
+One of these nested collections is an array of tasks. We use an array
+because we want the number of elements fixed at 288, the number of minutes in the day / 5.
+This makes each item in the array represent a 5 minute interval within a day, either
+containing a task if there is a task to be done at that time, or not containing a task 
+if there is not.
