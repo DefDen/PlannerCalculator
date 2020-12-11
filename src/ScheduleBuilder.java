@@ -160,7 +160,7 @@ public class ScheduleBuilder {
 			start5Minute -= 12;
 			startHour++;
 		}
-		if (startHour < endHour || startHour == endHour && start5Minute <= end5Minute) {
+		if (startHour < endHour || startHour == endHour && start5Minute < end5Minute) {
 			if (strictSchedule.get(startKey)[startHour * 12 + start5Minute] != null) {
 				throw new IllegalArgumentException();
 			}
