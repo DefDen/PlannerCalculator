@@ -34,4 +34,8 @@ public class LooseTask {
 	public int getDurationMinutes() {
 		return durationMinutes;
 	}
+
+	public String getDeadlineKey() {
+		return deadline.get(Calendar.MONTH) + " " + deadline.get(Calendar.DATE) + " " + deadline.get(Calendar.YEAR);
+	}
 }
