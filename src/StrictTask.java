@@ -1,14 +1,15 @@
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
-public class StrictTask {
+public class LooseTask implements Task {
 	private String name;
-	private Calendar startTime;
-	private Calendar endTime;
+	private Calendar deadline;
+	private int durationMinutes;
 	
-	public StrictTask (String name, Calendar startTime, Calendar endTime) {
+	public LooseTask(String name, Calendar deadline, int durationMinutes) {
 		this.name = name;
-		this.startTime = startTime;
-		this.endTime = endTime;
+		this.deadline = deadline;
+		this.durationMinutes = durationMinutes;
 	}
 	
 	public void setName(String name) {
@@ -19,27 +20,25 @@ public class StrictTask {
 		return name;
 	}
 	
-	public void setStartDate(Calendar startTime) {
-		this.startTime = startTime;
+	public void setDeadline(Calendar deadline) {
+		this.deadline = deadline;
 	}
 	
-	public Calendar getStartTime() {
-		return startTime;
+	public Calendar getDeadline() {
+		return deadline;
 	}
 	
-	public void setEndTime(Calendar endTime) {
-		this.endTime = endTime;
+	public void setDuration(int durationMinutes) {
+		this.durationMinutes = durationMinutes;
 	}
 	
-	public Calendar getEndTime() {
-		return endTime;
-	}
-
-	public String getStartKey() {
-		return startTime.get(Calendar.MONTH) + " " + startTime.get(Calendar.DATE) + " " + startTime.get(Calendar.YEAR); 
+	public int getDurationMinutes() {
+		return durationMinutes;
 	}
 	
-	public String getEndKey() {
-		return endTime.get(Calendar.MONTH) + " " + endTime.get(Calendar.DATE) + " " + endTime.get(Calendar.YEAR);
+	public StrictTask toStrictTask(Calendar startTime, int duration) {
+		GregorianCalendar endTime = (GregorianCalendar) startTime.clone();
+		endTime.add(Calendar.MINUTE, duration);
+		return new StrictTask(this.name, startTime, endTime);
 	}
 }
