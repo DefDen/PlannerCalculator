@@ -1,5 +1,5 @@
 import java.util.Calendar;
-
+import java.util.GregorianCalendar;
 public class LooseTask {
 	private String name;
 	private Calendar deadline;
@@ -37,5 +37,11 @@ public class LooseTask {
 
 	public String getDeadlineKey() {
 		return deadline.get(Calendar.MONTH) + " " + deadline.get(Calendar.DATE) + " " + deadline.get(Calendar.YEAR);
+	}
+
+	public StrictTask toStrictTask(Calendar startTime, int duration) {
+		GregorianCalendar endTime = (GregorianCalendar) startTime.clone();
+		endTime.add(Calendar.MINUTE, duration);
+		return new StrictTask(this.name, startTime, endTime);
 	}
 }

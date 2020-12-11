@@ -1,0 +1,9 @@
+We learned a learned a lot about version control and GitHub, which is also
+consequently what we had the most trouble with. We had constant trouble
+pushing since there were merge conflicts in the repository, and due to
+those conflicts we had multiple branches of the code being worked on
+simultaneously and differences in the code being developed. Despite that,
+we had fun working on the project since it was challenging and something
+we both wanted to work on. Even if the final product isn't what we hoped
+for, we definitely learned a lot about how to work together better
+in the future.
