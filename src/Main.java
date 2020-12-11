@@ -1,7 +1,7 @@
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 
-public class Main {
+public class Main {}
 	/*public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		ScheduleBuilder sb = new ScheduleBuilder();
@@ -31,10 +31,7 @@ public class Main {
 //				}
 //			}
 //		}
-	}
 	
-}
-
 
 		/*System.out.println("new run");
 		ScheduleBuilder sb = new ScheduleBuilder();
@@ -52,5 +49,3 @@ public class Main {
 				}
 			}*/
 	
-	}
-}
