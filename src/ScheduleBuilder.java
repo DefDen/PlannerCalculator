@@ -9,7 +9,6 @@ public class ScheduleBuilder {
 	private HashMap<String, HashSet<StrictTask>> strictTasks;
 	private HashMap<String, HashSet<LooseTask>> looseTasks;
 	private HashMap<String, HashSet<LooseTask>> looseTasksByName;
-	private Calendar actualDate;
 	private int wakeUpSeconds = 480, sleepSeconds = 1320;
 	private boolean isEarly = true;
 
@@ -50,34 +49,25 @@ public class ScheduleBuilder {
 			increment = -5;
 		}
 		System.out.println(x);
-		GregorianCalendar calendarDate = new GregorianCalendar(date[2], date[0], date[1], x / 60, x % 60);
+		GregorianCalendar calendarDate = new GregorianCalendar(date[2], date[0], date[1], 0, x);
 		System.out.println(calendarDate.get(Calendar.HOUR_OF_DAY) + " " + calendarDate.get(Calendar.MINUTE));
 		if (finalSchedule.get(day) == null) {
 			addStrictTask(add.toStrictTask(calendarDate, duration));
 		}
-		do {
-			if (finalSchedule.get(day)[x / 5] == null) {
-				int length = 0;
-				while (Math.abs(length) <= duration && finalSchedule.get(day)[(x + length) / 5] == null) {
-					System.out.println("1");
-					length += increment;
-				}
-				System.out.println("2 " + length + " " + duration);
-				if(Math.abs(length) >= duration) {
-					System.out.println("3");
-					if(!isEarly) {
-						x -= 2 * length;
-						calendarDate = new GregorianCalendar(date[2], date[0], date[1], x / 60, x % 60);
+		while(x > wakeUpSeconds && x < sleepSeconds) {
+			if(finalSchedule.get(day)[x / 5] == null) {
+				int span = 0;
+				while(finalSchedule.get(day)[(x + span) / 5] == null) {
+					if(span > 5 + duration) {
+						calendarDate = new GregorianCalendar(date[2], date[0], date[1], 0, x + increment);
+						addStrictTask(add.toStrictTask(calendarDate, duration));
+						return;
 					}
-					System.out.println(calendarDate.get(Calendar.HOUR_OF_DAY) + " " + calendarDate.get(Calendar.MINUTE));
-					addStrictTask(add.toStrictTask(calendarDate, duration));
-					return;
+					span += 5;
 				}
-				x += length;
-				calendarDate = new GregorianCalendar(date[2], date[0], date[1], x / 60, x % 60);
 			}
 			x += increment;
-		} while (x >= wakeUpSeconds && x <= sleepSeconds);
+		}
 	}
 
 	public void printFinal() {
@@ -92,14 +82,28 @@ public class ScheduleBuilder {
 		}
 	}
 
+	public void printStrictSchedule() {
+		for (String day : strictSchedule.keySet()) {
+			for (int i = 0; i < strictSchedule.get(day).length; i++) {
+				GregorianCalendar g = new GregorianCalendar(0, 0, 0, 0, i * 5, 0);
+				if (strictSchedule.get(day)[i] == null) {
+					System.out.println(day + " " + strictSchedule.get(day)[i] + " " + g.get(Calendar.HOUR_OF_DAY) + ":" + g.get(Calendar.MINUTE));
+				} else {
+					System.out.println(day + " " + strictSchedule.get(day)[i].getName() + " " + g.get(Calendar.HOUR_OF_DAY) + ":" + g.get(Calendar.MINUTE));
+				}
+			}
+		}
+	}
+
 	public HashMap<String, HashMap<LooseTask, Integer>> chooseDays() {
 		HashMap<String, HashMap<LooseTask, Integer>> r = new HashMap<String, HashMap<LooseTask, Integer>>();
 		for (String name : looseTasksByName.keySet()) {
 			for (LooseTask task : looseTasksByName.get(name)) {
 				String key = task.getDeadlineKey();
 				int minutesRemaining = task.getDurationMinutes();
-				int daysBetween = daysBetween(actualDate, task.getDeadline());
-				if (minutesRemaining / 60 < daysBetween(actualDate, task.getDeadline())) {
+				GregorianCalendar actual = new GregorianCalendar();
+				int daysBetween = daysBetween(actual, task.getDeadline());
+				if (minutesRemaining / 60 < daysBetween) {
 					fillDays(key, minutesRemaining, 60, task, r);
 				} else {
 					fillDays(key, minutesRemaining, minutesRemaining / daysBetween, task, r);
@@ -111,12 +115,14 @@ public class ScheduleBuilder {
 
 	private void fillDays(String key, int minutesRemaining, int duration, LooseTask task, HashMap<String, HashMap<LooseTask, Integer>> r) {
 		if (minutesRemaining > 0) {
-			HashMap<LooseTask, Integer> mini = new HashMap<LooseTask, Integer>();
+			if (r.get(key) == null) {
+				HashMap<LooseTask, Integer> mini = new HashMap<LooseTask, Integer>();
+				r.put(key, mini);
+			}
 			if (minutesRemaining < 5 + duration) {
 				duration += 5;
 			}
-			mini.put(task, Integer.min(duration / 5 * 5, minutesRemaining));
-			r.put(key, mini);
+			r.get(key).put(task, Integer.min(duration / 5 * 5, minutesRemaining));
 			fillDays(increment(key), minutesRemaining - duration, duration, task, r); 
 		}
 	}
@@ -139,10 +145,6 @@ public class ScheduleBuilder {
 			currDate = splitInts[0] + " " + splitInts[1] + " " + splitInts[2];
 			return currDate;
 		}
-
-	public void setActualDate(Calendar actualDate) {
-		this.actualDate = actualDate;
-	}
 
 	public int daysBetween(Calendar first, Calendar second) {
 		int r = 1;
@@ -207,7 +209,7 @@ public class ScheduleBuilder {
 			start5Minute -= 12;
 			startHour++;
 		}
-		if (startHour < endHour || startHour == endHour && start5Minute <= end5Minute) {
+		if (startHour < endHour || startHour == endHour && start5Minute < end5Minute) {
 			if (strictSchedule.get(startKey)[startHour * 12 + start5Minute] != null) {
 				throw new IllegalArgumentException();
 			}
@@ -255,5 +257,19 @@ public class ScheduleBuilder {
 	
 	public HashMap<String, StrictTask[]> getStrictSchedule() {
 		return strictSchedule;
+	}
+
+	public void addLooseTaskConsole(String name, int durationMinutes, int deadlineYear, int deadlineMonth, int deadlineDate, int deadlineHour, int deadlineMinute) {
+		GregorianCalendar cal = new GregorianCalendar();
+		cal.set(deadlineYear, deadlineMonth, deadlineDate, deadlineHour, deadlineMinute, 0);
+		addLooseTask(new LooseTask(name, cal, durationMinutes));	
+	}
+
+	public void addStrictTaskConsole(String name, int startYear, int startMonth, int startDate, int startHour, int startMinute, int endYear, int endMonth, int endDate, int endHour, int endMinute) {
+		GregorianCalendar startCal = new GregorianCalendar();
+		startCal.set(startYear, startMonth, startDate, startHour, startMinute, 0);
+		GregorianCalendar endCal = new GregorianCalendar();
+		endCal.set(endYear, endMonth, endDate, endHour, endMinute, 0);
+		addStrictTask(new StrictTask(name, startCal, endCal));
 	}
 }

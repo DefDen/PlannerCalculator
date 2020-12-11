@@ -4,6 +4,12 @@ pushing since there were merge conflicts in the repository, and due to
 those conflicts we had multiple branches of the code being worked on
 simultaneously and differences in the code being developed. Despite that,
 we had fun working on the project since it was challenging and something
-we both wanted to work on. Even if the final product isn't what we hoped
-for, we definitely learned a lot about how to work together better
-in the future.
+we both wanted to work on. Theorizing ways to optimize a schedule was fun.
+Ultimately, understanding that type of problem seems to require levels of math
+we are not at yet. We came up with some interesting ideas combining
+heuristics which each represent different standards of a good. Despite progress
+we made in evaluating a schedule once already given, we couldn't figure out how
+to generate candidate schedules in a reasonable amount of time. The key issue is
+we didn't know how to represent times as mathematical variables to create a master
+function for an optimal schedule. Even if we weren't able to work with heuristics
+like we wanted, we learned a lot about coding as a team.
