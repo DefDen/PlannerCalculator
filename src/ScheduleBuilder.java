@@ -21,6 +21,12 @@ public class ScheduleBuilder {
 		this.finalSchedule = new HashMap<String, StrictTask[]>();
 	}
 	
+	public void start() {
+		for(String s : strictSchedule.keySet()) {
+			finalSchedule.put(s, strictSchedule.get(s));
+		}
+	}
+
 	public void addTaskToDay(HashMap<String, HashMap<LooseTask, Integer>> tasks) {
 		for(String s : tasks.keySet()) {
 			for(LooseTask lt : tasks.get(s).keySet()) {
@@ -86,7 +92,7 @@ public class ScheduleBuilder {
 		}
 	}
 
-	public HashMap<String, HashMap<LooseTask, Integer>> easyChooseDays() {
+	public HashMap<String, HashMap<LooseTask, Integer>> chooseDays() {
 		HashMap<String, HashMap<LooseTask, Integer>> r = new HashMap<String, HashMap<LooseTask, Integer>>();
 		for (String name : looseTasksByName.keySet()) {
 			for (LooseTask task : looseTasksByName.get(name)) {
@@ -106,7 +112,7 @@ public class ScheduleBuilder {
 	private void fillDays(String key, int minutesRemaining, int duration, LooseTask task, HashMap<String, HashMap<LooseTask, Integer>> r) {
 		if (minutesRemaining > 0) {
 			HashMap<LooseTask, Integer> mini = new HashMap<LooseTask, Integer>();
-			if (minutesRemaining < 5) {
+			if (minutesRemaining < 5 + duration) {
 				duration += 5;
 			}
 			mini.put(task, Integer.min(duration / 5 * 5, minutesRemaining));
