@@ -4,16 +4,109 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class ScheduleBuilder {
-	private HashMap<String, StrictTask[]> strictSchedule;
+	private HashMap<String, StrictTask[]> strictSchedule, finalSchedule = new HashMap<String, StrictTask[]>();
 	private HashMap<String, HashSet<StrictTask>> strictTasks;
 	private HashMap<String, HashSet<LooseTask>> looseTasks;
-	
+	private int wakeUpSeconds = 480, sleepSeconds = 1320;
+	private boolean isEarly = true;
+
 	public ScheduleBuilder() {
 		this.strictTasks = new HashMap<String, HashSet<StrictTask>>();
 		this.looseTasks = new HashMap<String, HashSet<LooseTask>>();
 		this.strictSchedule = new HashMap<String, StrictTask[]>();
 	}
+
+	public void start() {
+		for(String s : strictSchedule.keySet()) {
+			finalSchedule.put(s, strictSchedule.get(s));
+		}
+	}
+
+	public HashMap<String, StrictTask[]> generate() {
+		finalSchedule = new HashMap<String, StrictTask[]>();
+		for(String s : strictSchedule.keySet()) {
+			finalSchedule.put(s, strictSchedule.get(s));
+		}
+
+
+		for(String s : looseTasks.keySet()) {
+			for(LooseTask lt : looseTasks.get(s)) {
+				// choose day
+				Calendar day = addTaskToDay();
+				while(day == null) {
+					// choose new day
+					// probably just increment or decrement day
+				}
+				addStrictTask(lt.toStrictTask(day));
+			}
+		}
+	}
+
+	public void addTaskToDay(HashMap<String, HashMap<LooseTask, Integer>> tasks) {
+		for(String s : tasks.keySet()) {
+			for(LooseTask lt : tasks.get(s).keySet()) {
+				addTaskToDay(s, lt, tasks.get(s).get(lt));
+			}
+		}
+	}
 	
+	public void addTaskToDay(String day, LooseTask add, int duration) {
+		int x = 0, increment = 0;
+		int[] date = new int[3];
+		String[] dayArray = day.split(" ");
+		for(int y = 0; y < date.length; y++) {
+			date[y] = Integer.parseInt(dayArray[y]);
+		}
+		if(isEarly) {
+			x = wakeUpSeconds;
+			increment = 5;
+		} else {
+			x = sleepSeconds;
+			increment = -5;
+		}
+		System.out.println(x);
+		GregorianCalendar calendarDate = new GregorianCalendar(date[2], date[0], date[1], x / 60, x % 60);
+		System.out.println(calendarDate.get(Calendar.HOUR_OF_DAY) + " " + calendarDate.get(Calendar.MINUTE));
+		if(finalSchedule.get(day) == null) {
+			addStrictTask(add.toStrictTask(calendarDate, duration));
+		}
+		do {
+			if(finalSchedule.get(day)[x / 5] == null) {
+				int length = 0;
+				while(Math.abs(length) <= duration && finalSchedule.get(day)[(x + length) / 5] == null) {
+					System.out.println("1");
+					length += increment;
+				}
+				System.out.println("2 " + length + " " + duration);
+				if(Math.abs(length) >= duration) {
+					System.out.println("3");
+					if(!isEarly) {
+						x -= 2 * length;
+						calendarDate = new GregorianCalendar(date[2], date[0], date[1], x / 60, x % 60);
+					}
+					System.out.println(calendarDate.get(Calendar.HOUR_OF_DAY) + " " + calendarDate.get(Calendar.MINUTE));
+					addStrictTask(add.toStrictTask(calendarDate, duration));
+					return;
+				}
+				x += length;
+				calendarDate = new GregorianCalendar(date[2], date[0], date[1], x / 60, x % 60);
+			}
+			x += increment;
+		} while(x >= wakeUpSeconds && x <= sleepSeconds);
+	}
+
+	public void printFinal() {
+		for (String day : finalSchedule.keySet()) {
+			for (int i = 0; i < finalSchedule.get(day).length; i++) {
+				if (finalSchedule.get(day)[i] == null) {
+					System.out.println(day + " " + finalSchedule.get(day)[i]);
+				} else {
+					System.out.println(day + " " + finalSchedule.get(day)[i].getName() + " " + finalSchedule.get(day)[i].getStartTime().get(Calendar.HOUR_OF_DAY) + ":" + finalSchedule.get(day)[i].getStartTime().get(Calendar.MINUTE));
+				}
+			}
+		}
+	}
+
 	/*public void addStrictTask(StrictTask task) {
 		if (!strictTasks.containsKey(task.getName())) {
 			strictTasks.put(task.getName(), new HashSet<StrictTask>());
@@ -113,7 +206,7 @@ public class ScheduleBuilder {
 			start5Minute++;
 		}
 	}*/
-	
+
 	public void addStrictTask(StrictTask task) {
 		if (!strictTasks.containsKey(task.getName())) {
 			strictTasks.put(task.getName(), new HashSet<StrictTask>());
@@ -154,7 +247,7 @@ public class ScheduleBuilder {
 		int end5Minute = task.getEndTime().get(Calendar.MINUTE) / 5;
 		fill(start5Minute, end5Minute, startHour, endHour, task, startKey);
 	}
-	
+
 	private void fill(int start5Minute, int end5Minute, int startHour, int endHour, StrictTask task, String startKey) {
 		if (start5Minute >= 12) {
 			start5Minute -= 12;
@@ -168,7 +261,7 @@ public class ScheduleBuilder {
 			fill(start5Minute + 1, end5Minute, startHour, endHour, task, startKey);
 		}
 	}
-	
+
 	/*private void fillEndOfDay(int minutesRemaining, int hoursRemaining, StrictTask task, String key) {
 		if (minutesRemaining <= 0) {
 			minutesRemaining += 12;
@@ -196,15 +289,15 @@ public class ScheduleBuilder {
 	fillHours(startHour, endHour, start5Minute, task, startKey);
 	fill5Minutes(start5Minute, end5Minute, startHour, task, startKey);
 }
-	
+
 	private void fill5Minutes(int start5Minute, int end5Minute, int startHour, StrictTask task, String startKey) {
 		while (start5Minute < end5Minute) {
 			strictSchedule.get(startKey)[startHour * 12 + start5Minute] = task;
 			start5Minute++;
 		}
 	}
-	
-	
+
+
 	private void fillHours(int startHour, int endHour, int start5Minute, StrictTask task, String startKey) {
 		while (startHour < endHour) {
 			fill5Minutes(start5Minute, 12, startHour, task, startKey);
@@ -212,7 +305,7 @@ public class ScheduleBuilder {
 			startHour++;
 		}
 	}
-	
+
 	private void fillDates(int startDate, int endDate, int startHour, int start5Minute, StrictTask task, String startKey) {
 		while (startDate < endDate) {
 			if (!strictSchedule.containsKey(startKey)) {
@@ -229,7 +322,7 @@ public class ScheduleBuilder {
 			strictSchedule.put(startKey, new StrictTask[288]);
 		}
 	}
-	
+
 	private void fillMonths(int startMonth, int endMonth, int startYear, int startDate, int startHour, int start5Minute, StrictTask task, String startKey) {
 		while (startMonth < endMonth) {
 			int numberOfDaysInMonth = numberOfDaysInMonth(startMonth, startYear, task.getStartTime());
@@ -239,7 +332,7 @@ public class ScheduleBuilder {
 			startKey = startMonth + " " + startKey.split(" ")[1] + " " + startKey.split(" ")[2];
 		}
 	}
-	
+
 	private void fillYears(int startYear, int endYear, int startMonth, int startDate, int startHour, int start5Minute, StrictTask task, String startKey) {
 		while (startYear < endYear) {
 			fillMonths(startMonth, 13, startYear, startDate, startHour, start5Minute, task, startKey);
@@ -248,7 +341,7 @@ public class ScheduleBuilder {
 			startKey = startKey.split(" ")[0] + " " + startKey.split(" ")[1] + " " + startYear;
 		}
 	}*/
-	
+
 	private int numberOfDaysInMonth(int startMonth, int startYear, Calendar cal) {
 		if (startMonth == Calendar.FEBRUARY) {
 			GregorianCalendar greg = (GregorianCalendar) cal;
@@ -259,33 +352,33 @@ public class ScheduleBuilder {
 		}
 		return (startMonth + 1 - startMonth / 7) % 2 + 30;
 	}
-	
+
 	public void addLooseTask(LooseTask task) {
 		if (!looseTasks.containsKey(task.getName())) {
 			looseTasks.put(task.getName(), new HashSet<LooseTask>());
 		}
 		looseTasks.get(task.getName()).add(task);
 	}
-	
+
 	public void removeStrictTask(StrictTask task) {
 		strictTasks.get(task.getName()).remove(task);
 	}
-	
+
 	public void removeLooseTask(LooseTask task) {
 		looseTasks.get(task.getName()).remove(task);
 	}
-	
+
 	public HashMap<String, HashSet<StrictTask>> getStrictTasks() {
 		return strictTasks;
 	}
-	
+
 	public HashMap<String, HashSet<LooseTask>> getLooseTasks() {
 		return looseTasks;
 	}
-	
+
 	public HashMap<String, StrictTask[]> getStrictSchedule() {
 		return strictSchedule;
 	}
-	
-	
+
+
 }
