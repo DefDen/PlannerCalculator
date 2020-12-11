@@ -224,14 +224,6 @@ public class ScheduleBuilder {
 			this.hour = Integer.parseInt(strs[4].substring(0, strs[4].indexOf(':')));
 			this.minute = Integer.parseInt(strs[4].substring(strs[4].indexOf(':') + 1));
 			this.name = strs[3];
-			if(strs[4].substring(strs[4].indexOf(':') + 1).length() == 1)
-			{
-				strs[4] = strs[4].substring(0, strs[4].indexOf(':')) + 0 + strs[4].substring(strs[4].indexOf(':'));
-			}
-			if(strs[6].substring(strs[6].indexOf(':') + 1).length() == 1)
-			{
-				strs[6] = strs[6].substring(0, strs[6].indexOf(':')) + 0 + strs[6].substring(strs[6].indexOf(':'));
-			}
 			this.timeSpan = strs[4] + " - " + strs[6];
 		}
 		public int compareTo(Object o) {
