@@ -7,11 +7,58 @@ public class ScheduleBuilder {
 	private HashMap<String, StrictTask[]> strictSchedule;
 	private HashMap<String, HashSet<StrictTask>> strictTasks;
 	private HashMap<String, HashSet<LooseTask>> looseTasks;
+	private int wakeUp, sleep, earliness;
 	
 	public ScheduleBuilder() {
 		this.strictTasks = new HashMap<String, HashSet<StrictTask>>();
 		this.looseTasks = new HashMap<String, HashSet<LooseTask>>();
 		this.strictSchedule = new HashMap<String, StrictTask[]>();
+	}
+	
+	public HashMap<String, StrictTask[]> generate() {
+		HashMap<String, StrictTask[]> finalSchedule = new HashMap<String, StrictTask[]>();
+		for(String s : strictSchedule.keySet()) {
+			finalSchedule.put(s, strictSchedule.get(s));
+		}
+		
+		
+		for(String s : looseTasks.keySet()) {
+			for(LooseTask lt : looseTasks.get(s)) {
+				// choose day
+				Calendar day = addTaskToDay();
+				while(day == null) {
+					// choose new day
+					// probably just increment or decrement day
+				}
+				addStrictTask(lt.toStrictTask(day));
+			}
+		}
+	}
+	
+	private Calendar addTaskToDay(String day, LooseTask add) {
+		int x = 0, increment = 0;
+		switch(earliness) {
+		case 0:
+			x = wakeUp;
+			increment = 5;
+			break;
+		case 1:
+			x = sleep;
+			if(sleep < wakeUp) {
+				x = 23;
+			}
+			increment = -5;
+			break;
+		case 2:
+			return addTaskMidDay(day, add);
+		}
+		do {
+			
+		} while(x != wakeUp && x != sleep);
+	}
+	
+	private Calendar addTaskMidDay(String day, LooseTask add) {
+		
 	}
 	
 	/*public void addStrictTask(StrictTask task) {
@@ -160,7 +207,7 @@ public class ScheduleBuilder {
 			start5Minute -= 12;
 			startHour++;
 		}
-		if (startHour < endHour || startHour == endHour && start5Minute < end5Minute) {
+		if (startHour < endHour || startHour == endHour && start5Minute <= end5Minute) {
 			if (strictSchedule.get(startKey)[startHour * 12 + start5Minute] != null) {
 				throw new IllegalArgumentException();
 			}
