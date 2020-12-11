@@ -1,5 +1,5 @@
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.*;
+
 public class LooseTask {
 	private String name;
 	private Calendar deadline;

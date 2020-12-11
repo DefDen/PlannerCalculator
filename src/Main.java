@@ -1,40 +1,48 @@
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
+
 public class Main {
 	public static void main(String[] args) {
-
+		
 		ScheduleBuilder sb = new ScheduleBuilder();
 		Scanner sc = new Scanner(System.in);
-		String input = "";
-		boolean running = true;
+		String input = "", generation = "";
+		System.out.println("Would you consider yourself a morning person? (Y/N)");
+		input = sc.nextLine().trim();
+		if(input.equalsIgnoreCase("y")) {
+			sb.setIsEarly(true);
+		}
+		boolean running = true, alreadyGenerated = false;
 		while (running) {
-			System.out.println("Enter 's' to add a strict task, 'l' to enter a loose task, or anything else to quit");
-			input = sc.nextLine();
+			System.out.println("Enter 's' to add a strict task, 'l' to enter a loose task, 'g' to generate your schedule or anything else to quit");
+			input = sc.nextLine().trim();
 			if (input.equals("s")) {
 				System.out.println("Enter the name of your strict task");
-				String name = sc.nextLine();
+				String name = sc.nextLine().trim();
 				System.out.println("Enter the starting time of your strict task in the following format (note: military time): 7:30 PM March 6 2020 >> 3 6 2020 19 30");
-				String[] start = sc.nextLine().split(" ");
+				String[] start = sc.nextLine().trim().split(" ");
 				System.out.println("Enter the ending time of your strict task in the following format (note: military time): 8:30 PM March 6 2020 >> 3 6 2020 20 30");
-				String[] end = sc.nextLine().split(" ");
+				String[] end = sc.nextLine().trim().split(" ");
 				sb.addStrictTaskConsole(name, Integer.parseInt(start[2]), Integer.parseInt(start[0]), Integer.parseInt(start[1]),
 				Integer.parseInt(start[3]), Integer.parseInt(start[4]), Integer.parseInt(end[2]), Integer.parseInt(end[0]), 
-				Integer.parseInt(end[1]), Integer.parseInt(end[3]), Integer.parseInt(end[4])); 
-				sb.start();
-				sb.printFinal();
+				Integer.parseInt(end[1]), Integer.parseInt(end[3]), Integer.parseInt(end[4]));
+				alreadyGenerated = false;
 			} else if (input.equals("l")) {
 				System.out.println("Enter the name of your loose task");
-				String name = sc.nextLine();
+				String name = sc.nextLine().trim();
 				System.out.println("Enter the deadline in the following format: 7:30 PM March 6 2020 >> 3 6 2020 7 30");
-				String[] start = sc.nextLine().split(" ");
+				String[] start = sc.nextLine().trim().split(" ");
 				System.out.println("Enter the estimated number of minutes this task will take");
-				int end = Integer.parseInt(sc.nextLine());
+				int end = Integer.parseInt(sc.nextLine().trim());
 				sb.addLooseTaskConsole(name, end, Integer.parseInt(start[2]), Integer.parseInt(start[0]), Integer.parseInt(start[1]),
 				Integer.parseInt(start[3]), Integer.parseInt(start[4]));
-				sb.start();
-				sb.printStrictSchedule();
+				alreadyGenerated = false;
+			} else if (input.equals("g")) {
+				if(!alreadyGenerated) {
+					sb.generate();
+					generation = sb.toString();
+				}
+				System.out.println(generation);
+				alreadyGenerated = true;
 			} else {
 				running = false;
 			}
