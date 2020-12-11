@@ -134,7 +134,7 @@ public class ScheduleBuilder {
 				splitInts[i] = Integer.parseInt(split[i]);
 			}
 			splitInts[1]--;
-			if (splitInts[1] < 0) {
+			if (splitInts[1] <= 0) {
 				splitInts[0]--;
 				if (splitInts[0] < 0) {
 					splitInts[0] = 11;
