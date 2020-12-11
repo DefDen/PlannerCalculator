@@ -50,34 +50,25 @@ public class ScheduleBuilder {
 			increment = -5;
 		}
 		System.out.println(x);
-		GregorianCalendar calendarDate = new GregorianCalendar(date[2], date[0], date[1], x / 60, x % 60);
+		GregorianCalendar calendarDate = new GregorianCalendar(date[2], date[0], date[1], 0, x);
 		System.out.println(calendarDate.get(Calendar.HOUR_OF_DAY) + " " + calendarDate.get(Calendar.MINUTE));
 		if (finalSchedule.get(day) == null) {
 			addStrictTask(add.toStrictTask(calendarDate, duration));
 		}
-		do {
-			if (finalSchedule.get(day)[x / 5] == null) {
-				int length = 0;
-				while (Math.abs(length) <= duration && finalSchedule.get(day)[(x + length) / 5] == null) {
-					System.out.println("1");
-					length += increment;
-				}
-				System.out.println("2 " + length + " " + duration);
-				if(Math.abs(length) >= duration) {
-					System.out.println("3");
-					if(!isEarly) {
-						x -= 2 * length;
-						calendarDate = new GregorianCalendar(date[2], date[0], date[1], x / 60, x % 60);
+		while(x > wakeUpSeconds && x < sleepSeconds) {
+			if(finalSchedule.get(day)[x / 5] == null) {
+				int span = 0;
+				while(finalSchedule.get(day)[(x + span) / 5] == null) {
+					if(span > 5 + duration) {
+						calendarDate = new GregorianCalendar(date[2], date[0], date[1], 0, x + increment);
+						addStrictTask(add.toStrictTask(calendarDate, duration));
+						return;
 					}
-					System.out.println(calendarDate.get(Calendar.HOUR_OF_DAY) + " " + calendarDate.get(Calendar.MINUTE));
-					addStrictTask(add.toStrictTask(calendarDate, duration));
-					return;
+					span += 5;
 				}
-				x += length;
-				calendarDate = new GregorianCalendar(date[2], date[0], date[1], x / 60, x % 60);
 			}
 			x += increment;
-		} while (x >= wakeUpSeconds && x <= sleepSeconds);
+		}
 	}
 
 	public void printFinal() {
@@ -87,6 +78,19 @@ public class ScheduleBuilder {
 					System.out.println(day + " " + finalSchedule.get(day)[i]);
 				} else {
 					System.out.println(day + " " + finalSchedule.get(day)[i].getName() + " " + finalSchedule.get(day)[i].getStartTime().get(Calendar.HOUR_OF_DAY) + ":" + finalSchedule.get(day)[i].getStartTime().get(Calendar.MINUTE));
+				}
+			}
+		}
+	}
+	
+	public void printStrictSchedule() {
+		for (String day : strictSchedule.keySet()) {
+			for (int i = 0; i < strictSchedule.get(day).length; i++) {
+				GregorianCalendar g = new GregorianCalendar(0, 0, 0, 0, i * 5, 0);
+				if (strictSchedule.get(day)[i] == null) {
+					System.out.println(day + " " + strictSchedule.get(day)[i] + " " + g.get(Calendar.HOUR_OF_DAY) + ":" + g.get(Calendar.MINUTE));
+				} else {
+					System.out.println(day + " " + strictSchedule.get(day)[i].getName() + " " + g.get(Calendar.HOUR_OF_DAY) + ":" + g.get(Calendar.MINUTE));
 				}
 			}
 		}
