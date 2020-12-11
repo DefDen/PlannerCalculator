@@ -1,0 +1,37 @@
+import java.util.Calendar;
+
+public class LooseTask {
+	private String name;
+	private Calendar deadline;
+	private int durationMinutes;
+	
+	public LooseTask(String name, Calendar deadline, int durationMinutes) {
+		this.name = name;
+		this.deadline = deadline;
+		this.durationMinutes = durationMinutes;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setDeadline(Calendar deadline) {
+		this.deadline = deadline;
+	}
+	
+	public Calendar getDeadline() {
+		return deadline;
+	}
+	
+	public void setDuration(int durationMinutes) {
+		this.durationMinutes = durationMinutes;
+	}
+	
+	public int getDurationMinutes() {
+		return durationMinutes;
+	}
+}
