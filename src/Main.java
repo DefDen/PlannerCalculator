@@ -29,7 +29,7 @@ public class Main {
 			} else if (input.equals("l")) {
 				System.out.println("Enter the name of your loose task");
 				String name = sc.nextLine().trim();
-				System.out.println("Enter the deadline in the following format: 7:30 PM March 6 2020 >> 3 6 2020 7 30");
+				System.out.println("Enter the deadline in the following format: 7:30 PM March 6 2020 >> 3 6 2020 19 30");
 				String[] start = sc.nextLine().trim().split(" ");
 				System.out.println("Enter the estimated number of minutes this task will take");
 				int end = Integer.parseInt(sc.nextLine().trim());
